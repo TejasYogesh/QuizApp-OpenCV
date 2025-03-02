@@ -44,36 +44,50 @@ print(len(mcqList))
 qNo = 0
 qTotal = len(dataAll)
 print(dataAll)
-print(len(dataAll ))
+print(len(dataAll))
 while True:
     success , img = cap.read()
     img = cv2.flip(img , 1)
     hands, img = detector.findHands(img , flipType=False)
 
-    mcq = mcqList[1]
-    img, bbox = cvzone.putTextRect(img,mcq.question,[100,100],2,2 , offset=50, border=5)
-    img, bbox1 = cvzone.putTextRect(img,mcq.choice1,[100,250],2,2 , offset=50, border=5)
-    img, bbox2 = cvzone.putTextRect(img,mcq.choice2,[400,250],2,2 , offset=50, border=5)
-    img, bbox3 = cvzone.putTextRect(img,mcq.choice3,[100,400],2,2 , offset=50, border=5)
-    img, bbox4 = cvzone.putTextRect(img,mcq.choice4,[400,400],2,2 , offset=50, border=5)
+    if qNo<qTotal:
+        mcq = mcqList[qNo]
 
-    if hands:
-        lmList = hands[0]['lmList']
-        cursor = lmList[8]
-        length, info, img = detector.findDistance(lmList[8][:2], lmList[12][:2], img)
-        # print(length)
+        img, bbox = cvzone.putTextRect(img,mcq.question,[100,100],2,2 , offset=50, border=5)
+        img, bbox1 = cvzone.putTextRect(img,mcq.choice1,[100,250],2,2 , offset=50, border=5)
+        img, bbox2 = cvzone.putTextRect(img,mcq.choice2,[400,250],2,2 , offset=50, border=5)
+        img, bbox3 = cvzone.putTextRect(img,mcq.choice3,[100,400],2,2 , offset=50, border=5)
+        img, bbox4 = cvzone.putTextRect(img,mcq.choice4,[400,400],2,2 , offset=50, border=5)
 
-        if length<60:
-            print("Clicked")
-            mcq.update(cursor,[bbox1,bbox2,bbox3,bbox4])
-            print(mcq.userAns)
-            if mcq.userAns is not None:
-                time.sleep(0.3)
-                qNo += 1
+        if hands:
+            lmList = hands[0]['lmList']
+            cursor = lmList[8]
+            length, info, img = detector.findDistance(lmList[8][:2], lmList[12][:2], img)
+            # print(length)
+
+            if length<60:
+                print("Clicked")
+                mcq.update(cursor,[bbox1,bbox2,bbox3,bbox4])
+                print(mcq.userAns)
+                if mcq.userAns is not None:
+                    time.sleep(0.3)
+                    qNo += 1
+
+    else:
+        score = 0
+        for mcq in mcqList:
+            if mcq.answer == mcq.userAns:
+                score += 1
+        score = round((score/qTotal)*100,2)
+        img,_ = cvzone.putTextRect(img,"Quiz Completed" , [250,300] , 2, 2, offset=50, border=5)
+        img,_ = cvzone.putTextRect(img,f'Your score:{score}%' , [700,300] , 2, 2, offset=50, border=5)
+
+        print(score)
 
     barvalue=150 + (950//qTotal)*qNo
     cv2.rectangle(img,(150,600),(barvalue, 650),(0,255,0), cv2.FILLED)
     cv2.rectangle(img,(150,600),(1100, 650),(255,0,255), 5)
+    img,_ = cvzone.putTextRect(img, f'{round((qNo/qTotal)*100)}%' , [1130,635], 2 , 2, offset= 16)
 
 
     cv2.imshow("Img" , img)
