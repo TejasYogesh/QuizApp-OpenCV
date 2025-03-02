@@ -61,13 +61,19 @@ while True:
         lmList = hands[0]['lmList']
         cursor = lmList[8]
         length, info, img = detector.findDistance(lmList[8][:2], lmList[12][:2], img)
-        print(length)
+        # print(length)
 
         if length<60:
             print("Clicked")
             mcq.update(cursor,[bbox1,bbox2,bbox3,bbox4])
             print(mcq.userAns)
+            if mcq.userAns is not None:
+                time.sleep(0.3)
+                qNo += 1
 
+    barvalue=150 + (950//qTotal)*qNo
+    cv2.rectangle(img,(150,600),(barvalue, 650),(0,255,0), cv2.FILLED)
+    cv2.rectangle(img,(150,600),(1100, 650),(255,0,255), 5)
 
 
     cv2.imshow("Img" , img)
